@@ -1,0 +1,30 @@
+name: HealingStone
+author: MythigGhoul
+version: 1.9
+main: me.Ghoul.HealingStone.Hs
+api-version: 1.13
+description: Left click healing stones for +1ups
+softdepend: [Vault]
+commands:
+    hs:
+        descriptioon: Base Command For Plugin
+        default: op
+permissions:
+    hs.maxhealth:
+        description: Gives The Player Max Health When The Block Is Clicked (Left Click Block)
+        default: op
+    hs.getstone:
+        decription: Gives The Player A Healing Stone
+        default: op
+    hs.getcrystal:
+        description: Gives The User A Healing Crystal
+        default: op
+    hs.crystal.+:
+        description: Gives The Player +5 Crystal Health From Crystal
+        default: op
+    hs.crystal.++:
+        description: Gives The Player +10 Crystal Health From Crystal
+        default: op
+    hs.crystal.+++:
+        description: Gives The Player +15 Crystal Health From Crystal
+        default: op

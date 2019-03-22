@@ -1,0 +1,26 @@
+# -------------------------- #
+#       HealingStone         #
+#            By              #
+#        MythicGhoul         #
+# -------------------------- #
+
+Plugin Version: 1.9
+
+Healingstone:
+   BlockType: EMERALD_BLOCK
+   
+Economy:
+   Enabled: false
+   Cost: 50.0
+
+Message:
+  Healthrestored: "&bYour Health Was Fully Restored!"
+  Healthfull: "&6Your Health Is Full!"
+  Stone: "&bYou Obtained A Healing Block"
+  Crystal+: "&bYou Obtained A +5 Healing Crystal"
+  Crystal++: "&bYou Obtained A +10 Healing Crystal"
+  Crystal+++: "&bYou Obtained A +15 Healing Crystal"
+  CrystalHeal: "&bYour Health Was Raised!"
+  Nofunds: "&4You Dont Have Enough Money!"
+
+HealingBlocks:
