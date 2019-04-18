@@ -2,6 +2,7 @@ package me.Ghoul.HealingStone;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
@@ -30,7 +31,23 @@ public class EventsClass implements Listener {
 		Player player = event.getPlayer();
 		Block block = event.getClickedBlock();
 
-		if (action.equals(Action.LEFT_CLICK_BLOCK)) {
+		if (player.isOp()) {
+			if (action.equals(Action.LEFT_CLICK_BLOCK)) {
+				if (block.getType().equals(Material.getMaterial(plugin.getConfig().getString("Healingstone.BlockType")))) {
+					Location loc = block.getLocation();
+					getConfig.set("location.World", loc.getWorld().getName());
+					getconfig.set("location.X", loc.getX());
+					getconfig.set("location.Y", loc.getY());
+					getconfig.set("location.Z", loc.getZ());
+					getconfig.set("location.Yaw", loc.getYaw());
+					getconfig.set("location.Pitch", loc.getPitch());
+					saveConfig();
+					
+				}
+			}
+		}
+
+		if (action.equals(Action.RIGHT_CLICK_BLOCK)) {
 			if (block.getType().equals(Material.getMaterial(plugin.getConfig().getString("Healingstone.BlockType")))) {
 				if (player.hasPermission("hs.maxhealth")) {
 					if (player.getHealth() == player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()) {
@@ -39,104 +56,101 @@ public class EventsClass implements Listener {
 						return;
 					}
 
-					if (plugin.getConfig().getBoolean("Economy.Enabled")) {
+					final EconomyResponse response = plugin.getEconomy().withdrawPlayer(player,
+							plugin.getConfig().getDouble("Economy.Cost"));
+					if (!response.transactionSuccess()) {
+						player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+								plugin.getConfig().getString("Message.Nofunds")));
+						player.sendMessage(ChatColor.GREEN + "You Need" + " " + "$"
+								+ (plugin.getConfig().getString("Economy.Cost")) + " " + "To Heal");
+						// Not enough money
 
-						final EconomyResponse response = plugin.getEconomy().withdrawPlayer(player,
-								plugin.getConfig().getDouble("Economy.Cost"));
-						if (!response.transactionSuccess()) {
-							player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-									plugin.getConfig().getString("Message.Nofunds")));
-							player.sendMessage(ChatColor.GREEN + "You Need"
-									+ (plugin.getConfig().getString("Economy.Cost")) + "To Heal");
-							// Not enough money.
-						} else {
-							player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
-							player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-									plugin.getConfig().getString("Message.Healthrestored")));
-							return;
-
-						}
+					} else {
+						player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+						player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+								plugin.getConfig().getString("Message.Healthrestored")));
+						return;
 
 					}
 
 				}
+
 			}
-			if (action.equals(Action.RIGHT_CLICK_AIR)) {
-				if (player.getInventory().getItemInMainHand().getType().equals(Material.NETHER_STAR)) {
+		}
+		if (action.equals(Action.RIGHT_CLICK_AIR)) {
+			if (player.getInventory().getItemInMainHand().getType().equals(Material.NETHER_STAR)) {
 
-					if (player.hasPermission("hs.crystal.+")) {
-						if (player.getHealth() == player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()) {
+				if (player.hasPermission("hs.crystal.+")) {
+					if (player.getHealth() == player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()) {
+						player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+								plugin.getConfig().getString("Message.Healthfull")));
+						return;
+
+					} else {
+						if (player.getInventory().getItemInMainHand().getItemMeta().getDisplayName()
+								.equals(ChatColor.GREEN + "+5 Healing Crystal")) {
+							player.setHealth(Math.min(20, player.getHealth() + 5));
+							player.getInventory().getItemInMainHand()
+									.setAmount(player.getInventory().getItemInMainHand().getAmount() - 1);
 							player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-									plugin.getConfig().getString("Message.Healthfull")));
+									plugin.getConfig().getString("Message.CrystalHeal")));
 							return;
-
-						} else {
-							if (player.getInventory().getItemInMainHand().getItemMeta().getDisplayName()
-									.equals(ChatColor.GREEN + "+5 Healing Crystal")) {
-								player.setHealth(Math.min(20, player.getHealth() + 5));
-								player.getInventory().getItemInMainHand()
-										.setAmount(player.getInventory().getItemInMainHand().getAmount() - 1);
-								player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-										plugin.getConfig().getString("Message.CrystalHeal")));
-								return;
-							}
 						}
+					}
 
-						if (action.equals(Action.RIGHT_CLICK_AIR)) {
-							if (player.getInventory().getItemInMainHand().getType().equals(Material.NETHER_STAR)) {
-								if (player.hasPermission("hs.crystal.++")) {
-									if (player.getInventory().getItemInMainHand().getItemMeta().getDisplayName()
-											.equals(ChatColor.GREEN + "+10 Healing Crystal")) {
-										if (player.getHealth() == player.getAttribute(Attribute.GENERIC_MAX_HEALTH)
-												.getValue()) {
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-													plugin.getConfig().getString("Message.Healthfull")));
-											return;
+					if (action.equals(Action.RIGHT_CLICK_AIR)) {
+						if (player.getInventory().getItemInMainHand().getType().equals(Material.NETHER_STAR)) {
+							if (player.hasPermission("hs.crystal.++")) {
+								if (player.getInventory().getItemInMainHand().getItemMeta().getDisplayName()
+										.equals(ChatColor.GREEN + "+10 Healing Crystal")) {
+									if (player.getHealth() == player.getAttribute(Attribute.GENERIC_MAX_HEALTH)
+											.getValue()) {
+										player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+												plugin.getConfig().getString("Message.Healthfull")));
+										return;
 
-										} else {
-											player.setHealth(Math.min(20, player.getHealth() + 10));
-											player.getInventory().getItemInMainHand().setAmount(
-													player.getInventory().getItemInMainHand().getAmount() - 1);
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-													plugin.getConfig().getString("Message.CrystalHeal")));
-											return;
-										}
-									}
-
-									if (action.equals(Action.RIGHT_CLICK_AIR)) {
-										if (player.getInventory().getItemInMainHand().getType()
-												.equals(Material.NETHER_STAR)) {
-											if (player.getInventory().getItemInMainHand().getItemMeta().getDisplayName()
-													.equals(ChatColor.GREEN + "+15 Healing Crystal")) {
-												if (player.hasPermission("hs.crystal.+++")) {
-													if (player.getHealth() == player
-															.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()) {
-														player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-																plugin.getConfig().getString("Message.Healthfull")));
-														return;
-
-													} else {
-														player.setHealth(Math.min(20, player.getHealth() + 15));
-														player.getInventory().getItemInMainHand().setAmount(
-																player.getInventory().getItemInMainHand().getAmount()
-																		- 1);
-														player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-																plugin.getConfig().getString("Message.CrystalHeal")));
-														return;
-													}
-												}
-											}
-
-										}
+									} else {
+										player.setHealth(Math.min(20, player.getHealth() + 10));
+										player.getInventory().getItemInMainHand()
+												.setAmount(player.getInventory().getItemInMainHand().getAmount() - 1);
+										player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+												plugin.getConfig().getString("Message.CrystalHeal")));
+										return;
 									}
 								}
 
+								if (action.equals(Action.RIGHT_CLICK_AIR)) {
+									if (player.getInventory().getItemInMainHand().getType()
+											.equals(Material.NETHER_STAR)) {
+										if (player.getInventory().getItemInMainHand().getItemMeta().getDisplayName()
+												.equals(ChatColor.GREEN + "+15 Healing Crystal")) {
+											if (player.hasPermission("hs.crystal.+++")) {
+												if (player.getHealth() == player
+														.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()) {
+													player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+															plugin.getConfig().getString("Message.Healthfull")));
+													return;
+
+												} else {
+													player.setHealth(Math.min(20, player.getHealth() + 15));
+													player.getInventory().getItemInMainHand().setAmount(
+															player.getInventory().getItemInMainHand().getAmount() - 1);
+													player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+															plugin.getConfig().getString("Message.CrystalHeal")));
+													return;
+												}
+											}
+										}
+
+									}
+								}
 							}
+
 						}
 					}
 				}
 			}
-
 		}
+
 	}
 }
