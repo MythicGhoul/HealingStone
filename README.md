@@ -1,0 +1,2 @@
+# HealingStone
+Simple healing plugin
